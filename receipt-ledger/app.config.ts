@@ -23,6 +23,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSPhotoLibraryUsageDescription:
         'Receipt Ledger reads the receipt screenshots you choose so it can record the payment.',
       NSFaceIDUsageDescription: 'Use Face ID to unlock Receipt Ledger.',
+      NSLocationWhenInUseUsageDescription:
+        'If you turn it on in Settings, Receipt Ledger saves where you were when you record a transaction. It stays on your device.',
       ITSAppUsesNonExemptEncryption: false,
     },
   },
@@ -72,6 +74,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         photosPermission: 'Receipt Ledger reads the receipt screenshots you choose so it can record the payment.',
         cameraPermission: false,
         microphonePermission: false,
+      },
+    ],
+    [
+      'expo-location',
+      {
+        locationWhenInUsePermission:
+          'If you turn it on in Settings, Receipt Ledger saves where you were when you record a transaction. It stays on your device.',
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        isAndroidBackgroundLocationEnabled: false,
+        isAndroidForegroundServiceEnabled: false,
       },
     ],
     ['expo-local-authentication', { faceIDPermission: 'Use Face ID to unlock Receipt Ledger.' }],

@@ -38,6 +38,7 @@ No server, no login, no analytics, no network calls. All data stays on the devic
 - **Activity.** Search counterparty, note or reference. Filter by account, bank, type, category and date range (this month, last month, last 30 days, custom). Results are grouped by day with a daily net. Tap a row to view or edit it, including the stored receipt image (full screen with zoom), or delete it.
 - **Insights** for any month: money out/in/net, top recipients, spending by category and by bank (plain-View bar charts).
 - **Data safety.** Zip backup (JSON plus receipt images) exported through the share sheet and restored with the document picker. CSV export. Optional **app lock** (biometrics or device PIN). **Delete all data**.
+- **Optional location (off by default).** With _Settings → Privacy → Save transaction location_ turned on and permission granted, new transactions store the phone's GPS position. GPS works without internet; no address lookup is done. The position is attached only when the transaction happened within the last 2 hours, because a receipt shared later was paid elsewhere. The form says whether the location will be saved. A saved transaction shows the coordinates with **Open in Maps** (opens your maps app) and **Remove location**. Locations are included in backups and in CSV export as latitude/longitude columns.
 - **Settings.** Currency, date format, theme (system/light/dark), category management.
 - **Onboarding.** Welcome (or restore a backup), add your first bank and account, then a how-to for sharing a screenshot.
 - Dark and light themes from shared design tokens, 48dp+ touch targets, accessibility labels and roles, scalable fonts (capped at 1.6×), and English strings in `src/i18n/en.ts` ready for an Urdu locale.
@@ -202,7 +203,7 @@ receipt-ledger/
 
 ## Data model
 
-SQLite, versioned through `PRAGMA user_version` (`src/db/migrations.ts`; v1 schema, v2 settings). Each migration runs in a transaction.
+SQLite, versioned through `PRAGMA user_version` (`src/db/migrations.ts`; v1 schema, v2 settings, v3 location). Each migration runs in a transaction.
 
 - `banks(id, name, color, icon, archived, created_at)`: `icon` holds the preset profile id.
 - `accounts(id, bank_id, label, last4, currency, opening_balance_minor, archived, created_at)`
@@ -210,6 +211,7 @@ SQLite, versioned through `PRAGMA user_version` (`src/db/migrations.ts`; v1 sche
 - `categories(id, name UNIQUE, color, icon)`, seeded with Food, Bills, Rent, Transport, Shopping, Family, Salary and Other.
 - `counterparties(id, name, key UNIQUE, last_category_id, last_type, use_count)`
 - `settings(key, value)`
+- v3 adds `transactions.latitude`, `longitude` and `location_accuracy` (all nullable).
 - Indexes on `transactions(account_id, occurred_at)`, `reference` and `counterparty`.
 
 Balances are **never stored**: `opening_balance_minor + Σreceived − Σsent` is computed in SQL, so edits and deletes always stay consistent. Receipt images are stored at `documentDirectory/receipts/<uuid>.jpg` as **relative** paths, which keeps backups portable.
@@ -221,6 +223,7 @@ Balances are **never stored**: `opening_balance_minor + Σreceived − Σsent` i
 - **Fees:** when a receipt shows both "Amount" and "Total Amount", the labeled total wins (the money that actually left the account). Edit the amount if you track fees separately.
 - **Multi-currency:** accounts can use PKR, USD, AED, SAR, GBP or EUR. Totals and insights are per currency (no FX conversion); Home shows the default currency's total plus a line per other currency.
 - **Opening balance** may be negative (overdrawn) or zero.
+- **Location** asks only for _while-in-use_ permission (no background location). The app never converts coordinates to an address, because Android's geocoder needs the network.
 - **App lock** re-locks after 30 s in the background; the import queue is kept while locked.
 - **Sent / Received** buttons save immediately once an account is selected (fewest taps). Editing an existing transaction uses a type toggle plus Save.
 - **Backups** are uncompressed zips (`backup.json` + `receipts/*`). Restore replaces all data after confirmation; paths are validated against traversal.
@@ -229,16 +232,16 @@ Balances are **never stored**: `opening_balance_minor + Σreceived − Σsent` i
 
 ## Verification status
 
-| Check                                                             | Result                                                                                                                                                          |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tsc --noEmit` (strict, typed routes)                             | clean                                                                                                                                                           |
-| ESLint (expo config + React Compiler rules) + Prettier            | clean                                                                                                                                                           |
-| Jest                                                              | 228 tests: parser (28 receipts), migrations, balances, duplicates, counterparty memory, backup round trip, CSV, account preselection, seed data, offline plugin |
-| `APP_VARIANT=production expo prebuild -p android`                 | manifest has no INTERNET; `SEND` / `SEND_MULTIPLE` `image/*` filters present; dev variant keeps INTERNET                                                        |
-| `expo export --platform android` (Hermes bundle)                  | builds; sample images excluded from production                                                                                                                  |
-| Runtime smoke test (web build in headless Chromium, light + dark) | onboarding → seed → all tabs → import queue → save/undo → balances update; no console errors                                                                    |
-| Native Gradle/Xcode build                                         | **not run in this environment**: the Android SDK and Maven repositories were unreachable from the build container. Build with EAS or `npx expo run:android`     |
-| ML Kit on-device OCR                                              | not run here (needs a device). Parser accuracy on real receipts was measured with Tesseract OCR output as a stand-in                                            |
+| Check                                                             | Result                                                                                                                                                                            |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tsc --noEmit` (strict, typed routes)                             | clean                                                                                                                                                                             |
+| ESLint (expo config + React Compiler rules) + Prettier            | clean                                                                                                                                                                             |
+| Jest                                                              | 228 tests: parser (28 receipts), migrations, balances, duplicates, counterparty memory, backup round trip, CSV, account preselection, seed data, offline plugin, location storage |
+| `APP_VARIANT=production expo prebuild -p android`                 | manifest has no INTERNET; `SEND` / `SEND_MULTIPLE` `image/*` filters present; dev variant keeps INTERNET                                                                          |
+| `expo export --platform android` (Hermes bundle)                  | builds; sample images excluded from production                                                                                                                                    |
+| Runtime smoke test (web build in headless Chromium, light + dark) | onboarding → seed → all tabs → import queue → save/undo → balances update; no console errors                                                                                      |
+| Native Gradle/Xcode build                                         | **not run in this environment**: the Android SDK and Maven repositories were unreachable from the build container. Build with EAS or `npx expo run:android`                       |
+| ML Kit on-device OCR                                              | not run here (needs a device). Parser accuracy on real receipts was measured with Tesseract OCR output as a stand-in                                                              |
 
 ## Known limitations
 

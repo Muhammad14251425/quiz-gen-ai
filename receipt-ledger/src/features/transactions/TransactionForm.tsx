@@ -48,6 +48,8 @@ export interface TransactionFormProps {
   suggestedType?: TxType;
   header?: ReactNode;
   footerExtra?: ReactNode;
+  /** Rendered below the note (e.g. location info). */
+  afterFields?: ReactNode;
 }
 
 export function TransactionForm({
@@ -60,6 +62,7 @@ export function TransactionForm({
   suggestedType,
   header,
   footerExtra,
+  afterFields,
 }: TransactionFormProps) {
   const db = useDb();
   const { colors, radius, dark } = useTheme();
@@ -373,6 +376,7 @@ export function TransactionForm({
           />
         )}
       />
+      {afterFields}
       {mode === 'edit' && errors.type ? (
         <AppText variant="caption" color={colors.danger}>
           {errors.type.message}

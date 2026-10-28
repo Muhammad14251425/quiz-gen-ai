@@ -103,6 +103,8 @@ export function transactionsToCsv(txs: TransactionView[]): string {
     'reference',
     'note',
     'source',
+    'latitude',
+    'longitude',
   ];
   const rows = txs.map((tx) => {
     const p = toLocalParts(tx.occurred_at);
@@ -121,6 +123,8 @@ export function transactionsToCsv(txs: TransactionView[]): string {
       tx.reference,
       tx.note,
       tx.source,
+      tx.latitude != null ? tx.latitude.toFixed(6) : '',
+      tx.longitude != null ? tx.longitude.toFixed(6) : '',
     ]
       .map(csvCell)
       .join(',');

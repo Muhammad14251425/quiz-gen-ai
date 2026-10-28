@@ -18,6 +18,7 @@ import {
   toNewTransaction,
   type TxFormValues,
 } from '../src/features/transactions/service';
+import { LocationNotice } from '../src/features/location/LocationInfo';
 import { TransactionForm } from '../src/features/transactions/TransactionForm';
 import { useDbQuery } from '../src/hooks/useDbQuery';
 import { t } from '../src/i18n';
@@ -92,6 +93,7 @@ function ImportForm({ item }: { item: QueueItem }) {
       key={item.id}
       mode="quick"
       initial={initial}
+      afterFields={<LocationNotice occurredAt={initial.occurredAt} />}
       confidence={parsed.confidence}
       bankHint={parsed.bankHint}
       imageUri={item.imageUri ?? item.sourceUri}

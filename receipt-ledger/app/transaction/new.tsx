@@ -13,6 +13,7 @@ import {
   toNewTransaction,
   type TxFormValues,
 } from '../../src/features/transactions/service';
+import { LocationNotice } from '../../src/features/location/LocationInfo';
 import { TransactionForm } from '../../src/features/transactions/TransactionForm';
 import { importFromGallery } from '../../src/features/import/pickFromGallery';
 import { useDbQuery } from '../../src/hooks/useDbQuery';
@@ -67,6 +68,7 @@ export default function NewTransactionScreen() {
     <TransactionForm
       mode="quick"
       initial={initial}
+      afterFields={<LocationNotice occurredAt={initial.occurredAt} />}
       onSubmit={async (values) => {
         const draft = toNewTransaction(values, { source: 'manual', receipt_path: null });
         if ((await confirmIfDuplicate(db, draft, { canSkip: false })) !== 'save') return;

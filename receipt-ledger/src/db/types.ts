@@ -50,6 +50,11 @@ export interface Transaction {
   /** Relative to the app's document directory, e.g. "receipts/abc.jpg". */
   receipt_path: string | null;
   source: TxSource;
+  /** Optional GPS position recorded at save time (only when the user enabled it). */
+  latitude: number | null;
+  longitude: number | null;
+  /** Metres. */
+  location_accuracy: number | null;
   created_at: number;
   updated_at: number;
 }
@@ -73,4 +78,6 @@ export interface Counterparty {
   use_count: number;
 }
 
-export type NewTransaction = Omit<Transaction, 'id' | 'created_at' | 'updated_at'>;
+type LocationFields = 'latitude' | 'longitude' | 'location_accuracy';
+export type NewTransaction = Omit<Transaction, 'id' | 'created_at' | 'updated_at' | LocationFields> &
+  Partial<Pick<Transaction, LocationFields>>;

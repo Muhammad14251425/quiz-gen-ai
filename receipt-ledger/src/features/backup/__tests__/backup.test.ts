@@ -72,6 +72,9 @@ describe('csv export', () => {
     note: '=HYPERLINK("x")',
     receipt_path: null,
     source: 'share',
+    latitude: 24.86076,
+    longitude: 67.00113,
+    location_accuracy: 12,
     created_at: 0,
     updated_at: 0,
     account_label: 'Main',
@@ -87,15 +90,23 @@ describe('csv export', () => {
   it('writes local times, decimal amounts, escapes quotes and neutralizes formulas', () => {
     const csv = transactionsToCsv([
       tx({}),
-      tx({ id: 2, type: 'received', amount_minor: 100, counterparty: null, note: null }),
+      tx({
+        id: 2,
+        type: 'received',
+        amount_minor: 100,
+        counterparty: null,
+        note: null,
+        latitude: null,
+        longitude: null,
+      }),
     ]);
     const lines = csv.replace(/^﻿/, '').trim().split('\r\n');
     expect(lines[0]).toBe(
-      'date,time,type,amount,signed_amount,currency,bank,account,counterparty,category,reference,note,source',
+      'date,time,type,amount,signed_amount,currency,bank,account,counterparty,category,reference,note,source,latitude,longitude',
     );
     expect(lines[1]).toBe(
-      '2026-10-28,17:41,sent,1250.50,-1250.50,PKR,HBL,Main,"Ali, ""Khan""",Food,TID1,"\'=HYPERLINK(""x"")",share',
+      '2026-10-28,17:41,sent,1250.50,-1250.50,PKR,HBL,Main,"Ali, ""Khan""",Food,TID1,"\'=HYPERLINK(""x"")",share,24.860760,67.001130',
     );
-    expect(lines[2]).toBe('2026-10-28,17:41,received,1.00,1.00,PKR,HBL,Main,,Food,TID1,,share');
+    expect(lines[2]).toBe('2026-10-28,17:41,received,1.00,1.00,PKR,HBL,Main,,Food,TID1,,share,,');
   });
 });

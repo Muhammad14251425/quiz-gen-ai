@@ -90,6 +90,15 @@ export const MIGRATIONS: Migration[] = [
     name: 'settings key/value store',
     statements: ['CREATE TABLE settings (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)'],
   },
+  {
+    version: 3,
+    name: 'optional transaction location',
+    statements: [
+      'ALTER TABLE transactions ADD COLUMN latitude REAL',
+      'ALTER TABLE transactions ADD COLUMN longitude REAL',
+      'ALTER TABLE transactions ADD COLUMN location_accuracy REAL',
+    ],
+  },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

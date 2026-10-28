@@ -10,6 +10,7 @@ import { useDb } from '../../src/db/client';
 import { CURRENCIES } from '../../src/domain/money';
 import { applyBackup, exportBackup, exportCsv, pickBackup, wipeEverything } from '../../src/features/backup/backup';
 import { InvalidBackupError } from '../../src/features/backup/format';
+import { requestLocationPermission } from '../../src/features/location/location';
 import { authenticate, canUseAppLock } from '../../src/features/lock/LockGate';
 import { showToast } from '../../src/features/toast/store';
 import { t } from '../../src/i18n';
@@ -34,6 +35,13 @@ export default function SettingsScreen() {
     } finally {
       setBusy(null);
     }
+  };
+
+  const toggleLocation = async (on: boolean) => {
+    if (on && !(await requestLocationPermission())) {
+      return Alert.alert(t('settings.saveLocation'), t('settings.locationDenied'));
+    }
+    await settings.update(db, { saveLocation: on });
   };
 
   const toggleLock = async (on: boolean) => {
@@ -152,6 +160,22 @@ export default function SettingsScreen() {
           subtitle={t('settings.appLockHint')}
           right={
             <Switch value={settings.appLock} onValueChange={(v) => void toggleLock(v)} label={t('settings.appLock')} />
+          }
+        />
+      </Card>
+
+      <SectionTitle>{t('settings.privacy')}</SectionTitle>
+      <Card style={{ paddingVertical: 0 }}>
+        <ListRow
+          icon="location-outline"
+          title={t('settings.saveLocation')}
+          subtitle={t('settings.saveLocationHint')}
+          right={
+            <Switch
+              value={settings.saveLocation}
+              onValueChange={(v) => void toggleLocation(v)}
+              label={t('settings.saveLocation')}
+            />
           }
         />
       </Card>

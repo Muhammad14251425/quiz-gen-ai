@@ -11,6 +11,8 @@ export interface Settings {
   currency: string;
   dateFormat: DateFormat;
   appLock: boolean;
+  /** Opt-in: store the GPS position with new transactions. */
+  saveLocation: boolean;
   onboarded: boolean;
   /** Last account used per detected bank profile id, for preselection on import. */
   lastAccountByBank: Record<string, number>;
@@ -22,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   currency: 'PKR',
   dateFormat: 'DD MMM YYYY',
   appLock: false,
+  saveLocation: false,
   onboarded: false,
   lastAccountByBank: {},
   lastAccountId: null,

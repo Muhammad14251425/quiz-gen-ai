@@ -10,6 +10,7 @@ import { bumpData } from '../../store/data';
 import { useSettings } from '../../store/settings';
 import { formatDate } from '../../utils/format';
 import { deleteReceipt, storeReceipt } from '../../utils/files';
+import { getCurrentPoint, shouldAttachLocation } from '../location/location';
 import { showToast } from '../toast/store';
 
 export interface TxFormValues {
@@ -98,9 +99,18 @@ export async function saveNewTransaction(
       receiptPath = null;
     }
   }
+  // Opt-in: the phone's position, only for transactions that just happened (see shouldAttachLocation).
+  const point =
+    useSettings.getState().saveLocation && shouldAttachLocation(draft.occurred_at) ? await getCurrentPoint(4000) : null;
   let id: number;
   try {
-    id = await repo.createTransaction(db, { ...draft, receipt_path: receiptPath });
+    id = await repo.createTransaction(db, {
+      ...draft,
+      receipt_path: receiptPath,
+      latitude: point?.latitude ?? null,
+      longitude: point?.longitude ?? null,
+      location_accuracy: point?.accuracy ?? null,
+    });
   } catch (e) {
     deleteReceipt(receiptPath);
     throw e;
@@ -132,9 +142,21 @@ export async function updateExistingTransaction(
   db: Db,
   id: number,
   values: TxFormValues,
-  existing: { source: TxSource; receipt_path: string | null },
+  existing: {
+    source: TxSource;
+    receipt_path: string | null;
+    /** Kept as is unless the user removed it (pass nulls). */
+    latitude: number | null;
+    longitude: number | null;
+    location_accuracy: number | null;
+  },
 ): Promise<void> {
-  await repo.updateTransaction(db, id, toNewTransaction(values, existing));
+  await repo.updateTransaction(db, id, {
+    ...toNewTransaction(values, existing),
+    latitude: existing.latitude,
+    longitude: existing.longitude,
+    location_accuracy: existing.location_accuracy,
+  });
   bumpData();
   void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 }

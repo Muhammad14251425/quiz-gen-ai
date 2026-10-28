@@ -269,8 +269,8 @@ export async function createTransaction(db: Db, tx: NewTransaction): Promise<num
     const t = now();
     const r = await db.run(
       `INSERT INTO transactions (account_id, type, amount_minor, occurred_at, counterparty, reference, category_id,
-        note, receipt_path, source, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        note, receipt_path, source, latitude, longitude, location_accuracy, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         tx.account_id,
         tx.type,
@@ -282,6 +282,9 @@ export async function createTransaction(db: Db, tx: NewTransaction): Promise<num
         tx.note,
         tx.receipt_path,
         tx.source,
+        tx.latitude ?? null,
+        tx.longitude ?? null,
+        tx.location_accuracy ?? null,
         t,
         t,
       ],
@@ -296,7 +299,8 @@ export async function updateTransaction(db: Db, id: number, tx: NewTransaction):
   await db.transaction(async () => {
     await db.run(
       `UPDATE transactions SET account_id = ?, type = ?, amount_minor = ?, occurred_at = ?, counterparty = ?,
-        reference = ?, category_id = ?, note = ?, receipt_path = ?, source = ?, updated_at = ? WHERE id = ?`,
+        reference = ?, category_id = ?, note = ?, receipt_path = ?, source = ?, latitude = ?, longitude = ?,
+        location_accuracy = ?, updated_at = ? WHERE id = ?`,
       [
         tx.account_id,
         tx.type,
@@ -308,6 +312,9 @@ export async function updateTransaction(db: Db, id: number, tx: NewTransaction):
         tx.note,
         tx.receipt_path,
         tx.source,
+        tx.latitude ?? null,
+        tx.longitude ?? null,
+        tx.location_accuracy ?? null,
         now(),
         id,
       ],

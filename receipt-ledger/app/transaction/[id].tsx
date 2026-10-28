@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
 
 import { Screen } from '../../src/components/display';
@@ -12,6 +12,7 @@ import {
   updateExistingTransaction,
   type TxFormValues,
 } from '../../src/features/transactions/service';
+import { LocationDetails } from '../../src/features/location/LocationInfo';
 import { TransactionForm } from '../../src/features/transactions/TransactionForm';
 import { showToast } from '../../src/features/toast/store';
 import { useDbQuery } from '../../src/hooks/useDbQuery';
@@ -23,6 +24,8 @@ export default function TransactionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const txId = Number(id);
   const { data: tx, loading } = useDbQuery((d) => repo.getTransaction(d, txId), [txId]);
+  // Removing the location takes effect when the user taps Save.
+  const [locationRemoved, setLocationRemoved] = useState(false);
 
   const initial = useMemo<TxFormValues | null>(
     () =>
@@ -77,9 +80,26 @@ export default function TransactionScreen() {
       key={tx.id}
       mode="edit"
       initial={initial}
+      afterFields={
+        locationRemoved ? null : (
+          <LocationDetails
+            latitude={tx.latitude}
+            longitude={tx.longitude}
+            accuracy={tx.location_accuracy}
+            label={tx.counterparty}
+            onRemove={() => setLocationRemoved(true)}
+          />
+        )
+      }
       imageUri={resolveReceipt(tx.receipt_path)}
       onSubmit={async (values) => {
-        await updateExistingTransaction(db, tx.id, values, { source: tx.source, receipt_path: tx.receipt_path });
+        await updateExistingTransaction(db, tx.id, values, {
+          source: tx.source,
+          receipt_path: tx.receipt_path,
+          latitude: locationRemoved ? null : tx.latitude,
+          longitude: locationRemoved ? null : tx.longitude,
+          location_accuracy: locationRemoved ? null : tx.location_accuracy,
+        });
         router.back();
       }}
       footerExtra={<Button title={t('common.delete')} icon="trash-outline" variant="ghost" onPress={confirmDelete} />}
