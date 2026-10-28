@@ -14,17 +14,26 @@ import { bumpData } from '../src/store/data';
 import { useSettings } from '../src/store/settings';
 import { copyToIncoming } from '../src/utils/files';
 
-type Sample = { name: string; module: number };
+type Sample = { name: string; key: string; module: number };
 // Required only in development so production bundles don't ship the sample images.
 const SAMPLES: Sample[] = __DEV__
   ? // eslint-disable-next-line @typescript-eslint/no-require-imports
     (require('../src/features/debug/samples') as { SAMPLE_RECEIPTS: Sample[] }).SAMPLE_RECEIPTS
   : [];
+const SAMPLE_TEXTS: Record<string, string> = __DEV__
+  ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+    (require('../src/features/debug/sampleTexts') as { SAMPLE_TEXTS: Record<string, string> }).SAMPLE_TEXTS
+  : {};
 
 async function sampleUri(sample: Sample): Promise<string> {
   const asset = Asset.fromModule(sample.module);
   await asset.downloadAsync();
-  return copyToIncoming(asset.localUri ?? asset.uri);
+  const uri = asset.localUri ?? asset.uri;
+  try {
+    return await copyToIncoming(uri);
+  } catch {
+    return uri; // web has no file system; the image is still viewable
+  }
 }
 
 /** Developer tools: seed demo data and push the bundled sample receipts through the real import pipeline. */
@@ -32,6 +41,7 @@ export default function DebugScreen() {
   const db = useDb();
   const update = useSettings((s) => s.update);
   const enqueue = useImportQueue((s) => s.enqueue);
+  const enqueueItems = useImportQueue((s) => s.enqueueItems);
   const [busy, setBusy] = useState(false);
 
   if (!__DEV__) return null;
@@ -45,6 +55,21 @@ export default function DebugScreen() {
       router.push('/import');
     } catch (e) {
       Alert.alert('Could not load samples', String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Emulators/web: skip ML Kit and feed the receipts' recorded OCR text through the same parser and form.
+  const simulate = async () => {
+    setBusy(true);
+    try {
+      const items = [];
+      for (const s of SAMPLES) {
+        items.push({ sourceUri: await sampleUri(s), source: 'share' as const, presetText: SAMPLE_TEXTS[s.key] ?? '' });
+      }
+      enqueueItems(items);
+      router.push('/import');
     } finally {
       setBusy(false);
     }
@@ -78,6 +103,13 @@ export default function DebugScreen() {
         icon="images-outline"
         loading={busy}
         onPress={() => void queue(SAMPLES)}
+      />
+      <Button
+        title="Simulate share without OCR (emulator)"
+        variant="secondary"
+        icon="document-text-outline"
+        loading={busy}
+        onPress={() => void simulate()}
       />
       <Card style={{ paddingVertical: 0 }}>
         {SAMPLES.map((s, i) => (

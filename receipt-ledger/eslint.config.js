@@ -7,6 +7,13 @@ module.exports = defineConfig([
   expoConfig,
   prettierRecommended,
   {
+    // Node scripts and config plugins.
+    files: ['scripts/**/*.js', 'plugins/**/*.js', '*.config.js'],
+    languageOptions: {
+      globals: { __dirname: 'readonly', require: 'readonly', module: 'writable', process: 'readonly' },
+    },
+  },
+  {
     ignores: ['dist/*', 'android/*', 'ios/*', 'node_modules/*', '.expo/*', 'expo-env.d.ts'],
   },
 ]);

@@ -255,9 +255,9 @@ export function ToastHost() {
       style={[
         styles.toastWrap,
         {
-          bottom: insets.bottom + 88,
+          top: insets.top + 8,
           opacity: anim,
-          transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+          transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] }) }],
         },
       ]}
     >

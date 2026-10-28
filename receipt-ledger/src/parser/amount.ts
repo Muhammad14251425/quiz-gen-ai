@@ -10,6 +10,9 @@ const NEGATIVE_LABEL =
 const ID_LABEL =
   /(\b(id|tid|trx|txn|ref|reference|rrn|stan|no|number|account|a\/c|acc|iban|mobile|phone|cell|cnic|consumer|till|card|customer|cust|raast|code|otp|pin)\b|#)/i;
 const CURRENCY_TAIL = /\b(rs|pkr)\W*$/i;
+/** Headline layouts put the label under the amount: "Rs. 350.00 / Successfully Sent to". */
+const LABEL_BELOW =
+  /^(successfully\s+)?(sent|paid|transferred|received)\b|^(you\s+)?(sent|paid|received)\s+(to|from)\b/i;
 
 const BAD_BEFORE = /[A-Za-z0-9*#/:._@]/;
 const BAD_AFTER = /[A-Za-z0-9*:/_@%]/;
@@ -104,6 +107,10 @@ export function extractAmount(lines: string[], maskedSpans: Span[]): AmountExtra
       if (minor <= 0 || minor > 100_000_000_000) continue;
 
       let score = label;
+      const nextLine = masked[lineIndex + 1];
+      if (label === 0 && hasCurrency && nextLine && !/\d/.test(text.slice(end)) && LABEL_BELOW.test(nextLine.trim())) {
+        score += 3;
+      }
       if (hasCurrency) score += 3;
       if (hasDecimals) score += 1;
       if (hasGrouping) score += 1;

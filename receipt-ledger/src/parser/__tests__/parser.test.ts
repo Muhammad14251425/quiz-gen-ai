@@ -213,3 +213,11 @@ describe('bank profiles', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 });
+
+describe('confidence', () => {
+  it('is high when a headline amount is followed by "Successfully Sent to"', () => {
+    const r = parseReceipt('Rs. 350.00\nSuccessfully Sent to\nAli Raza', undefined, { now: NOW });
+    expect(r.amount).toBe(35000);
+    expect(r.confidence.amount).toBeGreaterThan(0.6);
+  });
+});

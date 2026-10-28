@@ -62,7 +62,9 @@ export function TransactionForm({
   footerExtra,
 }: TransactionFormProps) {
   const db = useDb();
-  const { colors, radius } = useTheme();
+  const { colors, radius, dark } = useTheme();
+  // Bright action colors in dark mode need dark text for contrast.
+  const onAction = dark ? colors.textInverse : '#FFFFFF';
   const [submitting, setSubmitting] = useState(false);
   const [memoryHint, setMemoryHint] = useState<{ type: TxType | null; category: string | null } | null>(null);
   const categoryTouched = useRef(initial.categoryId != null);
@@ -150,13 +152,13 @@ export function TransactionForm({
               })}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Icon name={type === 'sent' ? 'arrow-up' : 'arrow-down'} color="#FFFFFF" />
-                <AppText variant="title" color="#FFFFFF">
+                <Icon name={type === 'sent' ? 'arrow-up' : 'arrow-down'} color={onAction} />
+                <AppText variant="title" color={onAction}>
                   {type === 'sent' ? t('common.sent') : t('common.received')}
                 </AppText>
               </View>
               {suggestion === type ? (
-                <AppText variant="caption" color="#FFFFFF">
+                <AppText variant="caption" color={onAction}>
                   {t('tx.suggested')}
                 </AppText>
               ) : null}
@@ -241,7 +243,9 @@ export function TransactionForm({
             value={field.value}
             onChange={field.onChange}
             highlight={
-              confidence !== undefined && (confidence.date ?? 0) <= LOW_CONFIDENCE && field.value === initial.occurredAt
+              confidence !== undefined &&
+              (confidence.date ?? 0) <= LOW_CONFIDENCE &&
+              field.value.getTime() === initial.occurredAt.getTime()
             }
           />
         )}

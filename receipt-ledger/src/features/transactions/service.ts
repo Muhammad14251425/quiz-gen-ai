@@ -89,7 +89,15 @@ export async function saveNewTransaction(
   opts: { source: TxSource; imageUri?: string | null; bankHint?: string; bankIcon?: string | null },
 ): Promise<number> {
   const draft = toNewTransaction(values, { source: opts.source, receipt_path: null });
-  const receiptPath = opts.imageUri ? await storeReceipt(opts.imageUri) : null;
+  let receiptPath: string | null = null;
+  if (opts.imageUri) {
+    try {
+      receiptPath = await storeReceipt(opts.imageUri);
+    } catch {
+      // Never block saving: keep the transaction even if the image copy fails (e.g. storage full).
+      receiptPath = null;
+    }
+  }
   let id: number;
   try {
     id = await repo.createTransaction(db, { ...draft, receipt_path: receiptPath });
