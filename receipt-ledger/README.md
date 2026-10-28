@@ -70,6 +70,22 @@ Individual commands: `npm run typecheck`, `npm run lint`, `npm test`, `npm run f
 
 > Use `npx expo install <pkg>` when adding packages so versions match SDK 58.
 
+## Quick try in Expo Go (no build needed)
+
+For a quick look at the UI on your phone:
+
+1. Install **Expo Go** (SDK 58) from the Play Store or App Store.
+2. On your computer: `cd receipt-ledger && npm install && npm run start:go` (runs `expo start --go --tunnel`; accept the prompt to install `@expo/ngrok`).
+3. Scan the QR code with Expo Go (Android) or the Camera app (iOS), or open the `exp://…` link it prints.
+
+Expo Go cannot load custom native code, so in Expo Go:
+
+- Sharing a screenshot _to_ the app does not work, because the share target needs a dev build.
+- On-device OCR is unavailable. **From gallery** opens the import form with empty fields and a "could not read" notice.
+- Everything else works: banks and accounts, manual entry, Activity, Insights, backup and settings. _Settings → Developer → Debug tools → Simulate share without OCR_ walks through the full import flow using the recorded text of the 12 sample receipts.
+
+Use a development build (below) to test sharing and real OCR.
+
 ## Running a development build
 
 Native modules (share intent, ML Kit, SQLite) mean **Expo Go will not work**. You need a development build.

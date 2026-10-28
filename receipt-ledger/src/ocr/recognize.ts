@@ -1,5 +1,6 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import * as MlKit from 'expo-mlkit-ocr';
+import { requireOptionalNativeModule } from 'expo';
+import type { RecognitionResult } from 'expo-mlkit-ocr';
 
 import type { OcrBlock } from '../parser';
 
@@ -38,16 +39,24 @@ export interface OcrResult {
   error?: string;
 }
 
+interface MlKitModule {
+  recognizeText(uri: string): Promise<RecognitionResult>;
+}
+
+/**
+ * Loaded optionally (not via `import 'expo-mlkit-ocr'`, which throws when the
+ * native module is missing) so the app still runs in Expo Go, where ML Kit is
+ * not available: imports then fall back to manual entry.
+ */
+const MlKit = requireOptionalNativeModule<MlKitModule>('ExpoMlkitOcr');
+
 export function isOcrAvailable(): boolean {
-  try {
-    return MlKit.isSupported();
-  } catch {
-    return false;
-  }
+  return MlKit != null;
 }
 
 /** On-device text recognition with ML Kit v2 (bundled Latin model, works offline). */
 export async function recognize(uri: string): Promise<OcrResult> {
+  if (!MlKit) return { text: '', blocks: [], error: 'OCR is not available in this build (Expo Go)' };
   try {
     const result = await MlKit.recognizeText(uri);
     const blocks: OcrBlock[] = result.blocks.map((b) => ({
