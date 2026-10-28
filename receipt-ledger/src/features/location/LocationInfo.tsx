@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Linking, Platform, View } from 'react-native';
 
@@ -63,7 +64,16 @@ export function LocationDetails({
         </AppText>
       </View>
       <View style={{ flexDirection: 'row', gap: 12 }}>
+        <Button
+          title={t('map.showOnMap')}
+          icon="flame-outline"
+          variant="secondary"
+          style={{ flex: 1 }}
+          onPress={() => router.push({ pathname: '/map', params: { lat: String(latitude), lng: String(longitude) } })}
+        />
         <Button title={t('tx.openInMaps')} icon="map-outline" variant="secondary" style={{ flex: 1 }} onPress={open} />
+      </View>
+      <View style={{ flexDirection: 'row', gap: 12 }}>
         <Button title={t('tx.removeLocation')} variant="ghost" style={{ flex: 1 }} onPress={onRemove} />
       </View>
     </View>

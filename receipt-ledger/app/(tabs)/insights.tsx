@@ -1,8 +1,9 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BarList, Screen } from '../../src/components/display';
-import { AppText, Card, Icon, SectionTitle } from '../../src/components/ui';
+import { AppText, Card, Icon, ListRow, SectionTitle } from '../../src/components/ui';
 import * as repo from '../../src/db/repositories';
 import { formatMoney } from '../../src/domain/money';
 import { useDbQuery } from '../../src/hooks/useDbQuery';
@@ -104,6 +105,15 @@ export default function InsightsScreen() {
           <View style={{ flex: data.flow.received, backgroundColor: colors.received }} />
         </View>
       ) : null}
+
+      <Card style={{ paddingVertical: 0 }}>
+        <ListRow
+          icon="map-outline"
+          title={t('map.open')}
+          subtitle={t('map.openHint')}
+          onPress={() => router.push('/map')}
+        />
+      </Card>
 
       <Card style={{ gap: 4 }}>
         <SectionTitle>{t('insights.topRecipients')}</SectionTitle>

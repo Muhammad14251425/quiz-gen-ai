@@ -60,6 +60,7 @@ function Navigation() {
           <Stack.Screen name="bank/[id]" options={{ title: '' }} />
           <Stack.Screen name="bank/edit" options={{ title: t('banks.addBank'), presentation: 'modal' }} />
           <Stack.Screen name="account/edit" options={{ title: t('banks.addAccount'), presentation: 'modal' }} />
+          <Stack.Screen name="map" options={{ title: t('map.title') }} />
           <Stack.Screen name="categories" options={{ title: t('categories.title') }} />
           <Stack.Screen name="receipt" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen name="debug" options={{ title: t('settings.debug') }} />

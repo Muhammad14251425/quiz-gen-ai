@@ -5,7 +5,12 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
  * builds set APP_VARIANT (e.g. `APP_VARIANT=production npx expo prebuild`).
  */
 const variant = process.env.EAS_BUILD_PROFILE ?? process.env.APP_VARIANT ?? 'development';
-const isProduction = variant === 'production';
+const isProduction = variant.startsWith('production');
+/**
+ * Strict offline build: no INTERNET permission and no online street map.
+ * Default builds allow the opt-in street map (OpenStreetMap tiles).
+ */
+const offlineOnly = process.env.OFFLINE_ONLY === '1';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -88,12 +93,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     ['expo-local-authentication', { faceIDPermission: 'Use Face ID to unlock Receipt Ledger.' }],
-    ['./plugins/withOffline', { stripInternet: isProduction }],
+    ['./plugins/withOffline', { stripInternet: isProduction && offlineOnly }],
   ],
   experiments: {
     typedRoutes: true,
   },
   extra: {
     variant,
+    onlineMapAvailable: !offlineOnly,
   },
 });

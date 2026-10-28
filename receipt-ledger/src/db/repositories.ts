@@ -323,6 +323,11 @@ export async function updateTransaction(db: Db, id: number, tx: NewTransaction):
   });
 }
 
+export async function countLocatedTransactions(db: Db): Promise<number> {
+  const row = await db.get<{ n: number }>('SELECT COUNT(*) AS n FROM transactions WHERE latitude IS NOT NULL');
+  return row?.n ?? 0;
+}
+
 /** Returns the deleted row's receipt path (if any) so the caller can remove the file. */
 export async function deleteTransaction(db: Db, id: number): Promise<string | null> {
   const row = await db.get<{ receipt_path: string | null }>('SELECT receipt_path FROM transactions WHERE id = ?', [id]);

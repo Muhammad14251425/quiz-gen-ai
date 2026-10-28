@@ -2,7 +2,7 @@
 
 An **offline** personal money tracker for Pakistan. Share a payment-receipt screenshot (JazzCash, Easypaisa, HBL, Meezan, UBL, Allied/myABL, MCB, Bank Alfalah, Faysal, Askari, SadaPay, NayaPay, Konnect, Raast…) to the app. It reads the image on-device, pre-fills the amount, date/time, counterparty and reference, and asks **Sent or Received?**. It then saves the transaction to one of your bank accounts and updates balances immediately.
 
-No server, no login, no analytics, no network calls. All data stays on the device.
+No server, no login, no analytics. All data stays on the device. The only network access is an **opt-in street map** (OpenStreetMap tiles), and a `production-offline` build removes even that.
 
 ---
 
@@ -39,6 +39,9 @@ No server, no login, no analytics, no network calls. All data stays on the devic
 - **Insights** for any month: money out/in/net, top recipients, spending by category and by bank (plain-View bar charts).
 - **Data safety.** Zip backup (JSON plus receipt images) exported through the share sheet and restored with the document picker. CSV export. Optional **app lock** (biometrics or device PIN). **Delete all data**.
 - **Optional location (off by default).** With _Settings → Privacy → Save transaction location_ turned on and permission granted, new transactions store the phone's GPS position. GPS works without internet; no address lookup is done. The position is attached only when the transaction happened within the last 2 hours, because a receipt shared later was paid elsewhere. The form says whether the location will be saved. A saved transaction shows the coordinates with **Open in Maps** (opens your maps app) and **Remove location**. Locations are included in backups and in CSV export as latitude/longitude columns.
+- **Spending heat map.** _Insights → Spending map_, or **Show on map** on a transaction. Hotspots show where you made transactions: they merge when you zoom out and split apart when you zoom in. Filters: Sent / Received / All, 30 days / 3 months / 12 months / All time, and weighting by count or by amount. Pinch or the +/− buttons zoom, drag pans, double-tap zooms in, and the fit button shows every spot. Tapping a hotspot lists its transactions with **Open in Maps**. A **Top places** list (payee and nearest city) works as an accessible alternative to the map.
+  - **Offline map (default):** Natural Earth outlines of Pakistan and its neighbours plus about 55 Pakistani cities, all bundled. No streets.
+  - **Street map (opt-in, uses internet):** the map button switches to OpenStreetMap street tiles after a one-time explanation. Only map tiles are downloaded; your transactions never leave the phone. Tiles are cached on the device.
 - **Settings.** Currency, date format, theme (system/light/dark), category management.
 - **Onboarding.** Welcome (or restore a backup), add your first bank and account, then a how-to for sharing a screenshot.
 - Dark and light themes from shared design tokens, 48dp+ touch targets, accessibility labels and roles, scalable fonts (capped at 1.6×), and English strings in `src/i18n/en.ts` ready for an Urdu locale.
@@ -109,11 +112,12 @@ npx expo run:ios              # macOS + Xcode
 
 `eas.json` profiles:
 
-| Profile       | Purpose                    | INTERNET permission |
-| ------------- | -------------------------- | ------------------- |
-| `development` | Dev client, talks to Metro | kept                |
-| `preview`     | Internal APK for testers   | kept                |
-| `production`  | Store build (AAB)          | **removed**         |
+| Profile              | Purpose                                         | INTERNET permission                      |
+| -------------------- | ----------------------------------------------- | ---------------------------------------- |
+| `development`        | Dev client, talks to Metro                      | kept                                     |
+| `preview`            | Internal APK for testers                        | kept                                     |
+| `production`         | Store build (AAB)                               | kept, used only by the opt-in street map |
+| `production-offline` | Strictly offline store build (`OFFLINE_ONLY=1`) | **removed**; street map hidden           |
 
 The profile reaches `app.config.ts` through `EAS_BUILD_PROFILE` on EAS or `APP_VARIANT` locally (`APP_VARIANT=production npx expo prebuild`).
 
@@ -156,11 +160,13 @@ Detection rules: a keyword in the first 3 lines scores ×2. A "Sent with / Paid 
 
 ## How the offline guarantee is enforced
 
-- **No INTERNET permission in production Android builds.** `plugins/withOffline.js` (enabled when the variant is `production`) removes `android.permission.INTERNET` from the app manifest. It also adds `<uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>` so the Gradle manifest merger drops INTERNET requested by _any_ library, including React Native and ML Kit's telemetry. Development and preview builds keep it for Metro.
-  - Verify: `APP_VARIANT=production npx expo prebuild -p android --clean && npm run verify:offline`. After a release build, `npm run verify:offline` checks the merged release manifest, or run `aapt dump permissions app-release.aab/apk`.
+> **Change: street map opt-in.** The spending map can optionally show OpenStreetMap street tiles, which needs the internet. So the regular `production` build now **keeps** the INTERNET permission, used only to download map tiles after the user turns the street map on. For the original strict guarantee, build with the `production-offline` profile (`OFFLINE_ONLY=1`): it strips INTERNET and hides the street-map switch. Everything below applies to that build, and to every build while the street map is off.
+
+- **No INTERNET permission in `production-offline` Android builds.** `plugins/withOffline.js` (enabled when the variant is production and `OFFLINE_ONLY=1`) removes `android.permission.INTERNET` from the app manifest. It also adds `<uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>` so the Gradle manifest merger drops INTERNET requested by _any_ library, including React Native and ML Kit's telemetry. Development and preview builds keep it for Metro.
+  - Verify: `APP_VARIANT=production OFFLINE_ONLY=1 npx expo prebuild -p android --clean && npm run verify:offline`. After a release build, `npm run verify:offline` checks the merged release manifest, or run `aapt dump permissions app-release.aab/apk`.
   - Unit-tested in `plugins/__tests__/withOffline.test.ts`.
 - **OCR models ship inside the app.** Android depends on the bundled `com.google.mlkit:text-recognition` artifact (model in the APK), not the Play-Services variant that downloads models on first use. iOS bundles the model with the `GoogleMLKit/TextRecognition` pod.
-- **No network code.** There are no analytics, crash reporters, OTA updates (`expo-updates` is not installed), remote fonts or remote images. Icons come from the bundled Ionicons font. Backups move only through the OS share sheet and document picker, at the user's request.
+- **The street map is the only network code.** It runs only after the user enables it, sends nothing but tile requests to `tile.openstreetmap.org`, and does not exist in `production-offline` builds. There are no analytics, crash reporters, OTA updates (`expo-updates` is not installed), remote fonts or remote images. Icons come from the bundled Ionicons font. Backups move only through the OS share sheet and document picker, at the user's request.
 - **iOS** has no INTERNET permission to remove. The guarantee there rests on the code making no network calls, and the share extension only hands files to the app.
 
 ## Project structure
@@ -232,18 +238,20 @@ Balances are **never stored**: `opening_balance_minor + Σreceived − Σsent` i
 
 ## Verification status
 
-| Check                                                             | Result                                                                                                                                                                            |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tsc --noEmit` (strict, typed routes)                             | clean                                                                                                                                                                             |
-| ESLint (expo config + React Compiler rules) + Prettier            | clean                                                                                                                                                                             |
-| Jest                                                              | 233 tests: parser (28 receipts), migrations, balances, duplicates, counterparty memory, backup round trip, CSV, account preselection, seed data, offline plugin, location storage |
-| `APP_VARIANT=production expo prebuild -p android`                 | manifest has no INTERNET; `SEND` / `SEND_MULTIPLE` `image/*` filters present; dev variant keeps INTERNET                                                                          |
-| `expo export --platform android` (Hermes bundle)                  | builds; sample images excluded from production                                                                                                                                    |
-| Runtime smoke test (web build in headless Chromium, light + dark) | onboarding → seed → all tabs → import queue → save/undo → balances update; no console errors                                                                                      |
-| Native Gradle/Xcode build                                         | **not run in this environment**: the Android SDK and Maven repositories were unreachable from the build container. Build with EAS or `npx expo run:android`                       |
-| ML Kit on-device OCR                                              | not run here (needs a device). Parser accuracy on real receipts was measured with Tesseract OCR output as a stand-in                                                              |
+| Check                                                             | Result                                                                                                                                                                                                                             |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tsc --noEmit` (strict, typed routes)                             | clean                                                                                                                                                                                                                              |
+| ESLint (expo config + React Compiler rules) + Prettier            | clean                                                                                                                                                                                                                              |
+| Jest                                                              | 247 tests: parser (28 receipts), migrations, balances, duplicates, counterparty memory, backup round trip, CSV, account preselection, seed data, offline plugin, location storage, map maths (projection, zoom, clustering, tiles) |
+| `APP_VARIANT=production OFFLINE_ONLY=1 expo prebuild -p android`  | manifest has no INTERNET (plain `production` keeps it for the opt-in street map); `SEND` / `SEND_MULTIPLE` `image/*` filters present; dev variant keeps INTERNET                                                                   |
+| `expo export --platform android` (Hermes bundle)                  | builds; sample images excluded from production                                                                                                                                                                                     |
+| Runtime smoke test (web build in headless Chromium, light + dark) | onboarding → seed → all tabs → import queue → save/undo → balances update; no console errors                                                                                                                                       |
+| Native Gradle/Xcode build                                         | **not run in this environment**: the Android SDK and Maven repositories were unreachable from the build container. Build with EAS or `npx expo run:android`                                                                        |
+| ML Kit on-device OCR                                              | not run here (needs a device). Parser accuracy on real receipts was measured with Tesseract OCR output as a stand-in                                                                                                               |
 
 ## Known limitations
+
+- The offline map has country outlines and city labels but **no streets**. Street detail needs the opt-in street map, which uses the internet. Heavy use of OpenStreetMap's public tile server is discouraged by its usage policy; for a wide release, point the tile URL in `src/features/map/HeatMap.tsx` at a commercial or self-hosted tile provider.
 
 - **ML Kit reads Latin script only.** Urdu text on receipts is not recognized. Names written in Urdu will not be extracted.
 - OCR quality varies. Very blurry, cropped or low-contrast screenshots may need manual fixes; the form highlights uncertain fields.

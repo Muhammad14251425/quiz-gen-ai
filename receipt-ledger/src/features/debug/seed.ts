@@ -12,7 +12,18 @@ interface SeedTx {
   counterparty: string;
   category?: string;
   reference?: string;
+  place?: keyof typeof PLACES;
 }
+
+/** Demo spots for the spending map (lat, lng). */
+const PLACES = {
+  dha: [24.8031, 67.0637],
+  clifton: [24.8138, 67.03],
+  saddar: [24.8556, 67.029],
+  gulshan: [24.918, 67.0971],
+  gulberg: [31.512, 74.3456],
+  f7: [33.7217, 73.0551],
+} as const;
 
 const SAMPLE_TXS: SeedTx[] = [
   {
@@ -22,6 +33,7 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'received',
     rupees: 185000,
     counterparty: 'Acme Pvt Ltd',
+    place: 'saddar',
     category: 'Salary',
   },
   {
@@ -31,11 +43,39 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'sent',
     rupees: 45000,
     counterparty: 'Landlord Imran',
+    place: 'dha',
     category: 'Rent',
   },
-  { account: 'jazz', daysAgo: 1, hour: 13, type: 'sent', rupees: 850, counterparty: 'Cafe Aylanto', category: 'Food' },
-  { account: 'easy', daysAgo: 2, hour: 20, type: 'sent', rupees: 3610, counterparty: 'StormFiber', category: 'Bills' },
-  { account: 'naya', daysAgo: 3, hour: 11, type: 'sent', rupees: 1500, counterparty: 'Careem', category: 'Transport' },
+  {
+    account: 'jazz',
+    daysAgo: 1,
+    hour: 13,
+    type: 'sent',
+    rupees: 850,
+    counterparty: 'Cafe Aylanto',
+    place: 'clifton',
+    category: 'Food',
+  },
+  {
+    account: 'easy',
+    daysAgo: 2,
+    hour: 20,
+    type: 'sent',
+    rupees: 3610,
+    counterparty: 'StormFiber',
+    place: 'gulshan',
+    category: 'Bills',
+  },
+  {
+    account: 'naya',
+    daysAgo: 3,
+    hour: 11,
+    type: 'sent',
+    rupees: 1500,
+    counterparty: 'Careem',
+    place: 'clifton',
+    category: 'Transport',
+  },
   {
     account: 'jazz',
     daysAgo: 4,
@@ -43,9 +83,19 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'received',
     rupees: 5000,
     counterparty: 'Sara Ahmed',
+    place: 'gulshan',
     category: 'Family',
   },
-  { account: 'hbl', daysAgo: 6, hour: 10, type: 'sent', rupees: 4321.5, counterparty: 'K-Electric', category: 'Bills' },
+  {
+    account: 'hbl',
+    daysAgo: 6,
+    hour: 10,
+    type: 'sent',
+    rupees: 4321.5,
+    counterparty: 'K-Electric',
+    place: 'dha',
+    category: 'Bills',
+  },
   {
     account: 'easy',
     daysAgo: 8,
@@ -53,10 +103,29 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'sent',
     rupees: 2200,
     counterparty: 'Imtiaz Store',
+    place: 'gulshan',
     category: 'Shopping',
   },
-  { account: 'naya', daysAgo: 10, hour: 21, type: 'sent', rupees: 150, counterparty: 'Akhter Naeem', category: 'Food' },
-  { account: 'hbl', daysAgo: 12, hour: 12, type: 'sent', rupees: 10000, counterparty: 'Ammi', category: 'Family' },
+  {
+    account: 'naya',
+    daysAgo: 10,
+    hour: 21,
+    type: 'sent',
+    rupees: 150,
+    counterparty: 'Akhter Naeem',
+    place: 'dha',
+    category: 'Food',
+  },
+  {
+    account: 'hbl',
+    daysAgo: 12,
+    hour: 12,
+    type: 'sent',
+    rupees: 10000,
+    counterparty: 'Ammi',
+    place: 'gulberg',
+    category: 'Family',
+  },
   {
     account: 'jazz',
     daysAgo: 15,
@@ -64,6 +133,7 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'sent',
     rupees: 1200,
     counterparty: 'Cafe Aylanto',
+    place: 'clifton',
     category: 'Food',
   },
   {
@@ -73,6 +143,7 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'received',
     rupees: 185000,
     counterparty: 'Acme Pvt Ltd',
+    place: 'saddar',
     category: 'Salary',
   },
   {
@@ -82,10 +153,29 @@ const SAMPLE_TXS: SeedTx[] = [
     type: 'sent',
     rupees: 45000,
     counterparty: 'Landlord Imran',
+    place: 'dha',
     category: 'Rent',
   },
-  { account: 'easy', daysAgo: 36, hour: 14, type: 'sent', rupees: 3610, counterparty: 'StormFiber', category: 'Bills' },
-  { account: 'naya', daysAgo: 40, hour: 22, type: 'sent', rupees: 2750, counterparty: 'Daraz', category: 'Shopping' },
+  {
+    account: 'easy',
+    daysAgo: 36,
+    hour: 14,
+    type: 'sent',
+    rupees: 3610,
+    counterparty: 'StormFiber',
+    place: 'gulshan',
+    category: 'Bills',
+  },
+  {
+    account: 'naya',
+    daysAgo: 40,
+    hour: 22,
+    type: 'sent',
+    rupees: 2750,
+    counterparty: 'Daraz',
+    place: 'f7',
+    category: 'Shopping',
+  },
 ];
 
 /** Loads demo banks, accounts and two months of transactions. Returns the number of transactions created. */
@@ -135,7 +225,7 @@ export async function seedSampleData(db: Db, now = Date.now()): Promise<number> 
   });
 
   const categories = await repo.listCategories(db);
-  for (const s of SAMPLE_TXS) {
+  for (const [i, s] of SAMPLE_TXS.entries()) {
     const p = toLocalParts(now - s.daysAgo * 86_400_000);
     await repo.createTransaction(db, {
       account_id: accounts[s.account],
@@ -148,6 +238,10 @@ export async function seedSampleData(db: Db, now = Date.now()): Promise<number> 
       note: null,
       receipt_path: null,
       source: 'manual',
+      // Small deterministic offsets so repeated visits form a hotspot rather than one dot.
+      latitude: s.place ? PLACES[s.place][0] + ((i % 5) - 2) * 0.0012 : null,
+      longitude: s.place ? PLACES[s.place][1] + ((i % 3) - 1) * 0.0015 : null,
+      location_accuracy: s.place ? 20 : null,
     });
   }
   return SAMPLE_TXS.length;

@@ -13,6 +13,8 @@ export interface Settings {
   appLock: boolean;
   /** Opt-in: store the GPS position with new transactions. */
   saveLocation: boolean;
+  /** Opt-in: download OpenStreetMap street tiles under the spending map. */
+  onlineMap: boolean;
   onboarded: boolean;
   /** Last account used per detected bank profile id, for preselection on import. */
   lastAccountByBank: Record<string, number>;
@@ -25,6 +27,7 @@ export const DEFAULT_SETTINGS: Settings = {
   dateFormat: 'DD MMM YYYY',
   appLock: false,
   saveLocation: false,
+  onlineMap: false,
   onboarded: false,
   lastAccountByBank: {},
   lastAccountId: null,
