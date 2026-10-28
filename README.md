@@ -15,9 +15,3 @@ On Streamlit Community Cloud select this repository, branch main, and app.py. Se
 The hf_space folder contains a free Static Hugging Face Space wrapper. Replace the Streamlit URL and name placeholders in index.html, then upload that folder's README.md and index.html to the Space root. The public Streamlit app is embedded using /?embed=true. Python and model inference run on Streamlit Community Cloud.
 
 The model can produce an incorrect span even with a high score, especially when the context does not contain an answer. Always verify against the supporting passage.
-
----
-
-## Receipt Ledger (mobile app)
-
-The [`receipt-ledger/`](receipt-ledger/) folder contains a separate, fully offline Expo app that turns payment-receipt screenshots into a per-bank ledger. See [`receipt-ledger/README.md`](receipt-ledger/README.md).
