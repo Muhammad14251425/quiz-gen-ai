@@ -1,0 +1,9 @@
+Bank Alfalah
+Alfa
+Transfer Successful
+You sent Rs. 7,000.00 to Fatima Noor
+Account Title: FATIMA NOOR
+IBAN: PK12ALFH0012001004567890
+Date: Oct 20, 2026 3:05 pm
+STAN: 778899
+RRN: 629301778899

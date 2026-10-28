@@ -1,0 +1,9 @@
+Faysal Bank
+Faysal DigiBank
+Credit Alert
+Your account ****3301 has been credited with PKR 50,000.00
+Sender: ABC Traders Pvt Ltd
+Sender Account: 3301234567890
+on 01-10-2026 at 10:00:05
+Ref: FBL0110265566
+Avl Bal PKR 1,23,456.00

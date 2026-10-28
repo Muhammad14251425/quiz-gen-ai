@@ -1,0 +1,11 @@
+UBL Digital
+Raast Payment
+Amount Sent
+Rs 3,750
+Receiver
+Hamza Tariq
+Raast ID 03211234567
+Bank Alfalah
+Transaction ID: RST2610284455
+Date: 2026-10-28 08:15:44
+Status: Successful

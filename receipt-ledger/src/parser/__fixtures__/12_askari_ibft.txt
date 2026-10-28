@@ -1,0 +1,10 @@
+askari bank
+Askari Mobile
+Inter Bank Funds Transfer
+Transfer Amount: Rs.12,345.67
+Beneficiary: Naveed Iqbal
+Beneficiary Bank: HBL
+Beneficiary Account: 1234-5678-9012
+Transaction Date: 12/10/2026
+Transaction Time: 18:20
+Transaction ID: AKB12102026182000

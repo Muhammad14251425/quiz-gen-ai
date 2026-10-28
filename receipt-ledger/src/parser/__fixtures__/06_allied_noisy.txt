@@ -1,0 +1,8 @@
+ALLIED BANK
+myABL
+Fund5 Transfer Recelpt
+Amount   Rs.1O,5OO.OO
+Paid to: Kamran Akmal (A/C ****7781)
+Date 3/1O/26  O7:45 PM
+Trx ID  ABL9981234
+Fee Rs 1O.OO

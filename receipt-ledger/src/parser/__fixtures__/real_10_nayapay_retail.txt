@@ -1,0 +1,21 @@
+RES
+AKHTER NAEEM
+Retail Transaction
+
+Rs. 150
+
+12 Oct 2026, 09:01 PM
+Transaction Amount Rs. 150
+Service Fee (Incl. Tax) Rs. 0
+Total Amount Rs. 150
+Transaction ID 6acd0474a7724a6dd8f8796d [DO
+
+ADDITIONAL INFORMATION ~
+
+Type of Transaction Retail
+Merchant Category Grocery Stores and
+Supermarkets
+Merchant Details AKHTER NAEEM
+Channel Raast
+
+Paid with # NayaPay

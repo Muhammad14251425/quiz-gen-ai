@@ -1,0 +1,14 @@
+HBL Mobile
+Funds Transfer
+Transaction Successful
+Amount Transferred
+PKR 25,000.00
+From Account
+HBL ****4521
+To
+Beneficiary Name  SARA AHMED
+Beneficiary Bank  Meezan Bank Limited
+Account No  0123 0101234567
+Transaction Ref # FT26301ABC12
+Date  28-10-2026  14:22:10
+Charges  PKR 0.00

@@ -1,0 +1,7 @@
+MCB Live
+Bill Payment Successful
+Merchant  K-Electric
+Consumer No 0400012345678
+Total Amount  Rs 4,321.50
+Paid On  05 Oct 2026  10:12
+Transaction Reference  MCB20261005XYZ

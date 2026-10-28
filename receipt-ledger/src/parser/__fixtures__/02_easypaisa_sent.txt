@@ -1,0 +1,12 @@
+easypaisa
+Payment Successful!
+Rs 2,500
+Transaction ID 31234567890
+Sent To
+Ayesha Siddiqui
+Easypaisa Account 0345 1234567
+Sent From
+Bilal Ahmed
+0333 7654321
+Date & Time  Oct 27, 2026 11:05 AM
+Fee  Rs 0

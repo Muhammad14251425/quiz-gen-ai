@@ -1,0 +1,16 @@
+StormFiber
+stormfiber@nayapay
+Rs. 3,610
+
+25 Oct 2026, 02:47 PM
+Amount Paid Rs. 3,610
+Service Fee (Incl. Tax) Rs. 0
+Total Amount Rs. 3,610
+Consumer Name Muhammad Yahya
+Consumer Number 03002606806 [OD
+Transaction ID 6addd02814c40278f1397¢c84 (DO
+ADDITIONAL INFORMATION ~
+Source Acc. Title Fawad
+Destination Acc. Title StormFiber
+
+Paid with ## NayaPay
